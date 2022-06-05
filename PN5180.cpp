@@ -174,10 +174,6 @@ bool PN5180::readRegister(uint8_t reg, uint32_t *value) {
   uint8_t cmd[] = { PN5180_READ_REGISTER, reg };
   transceiveCommand(cmd, sizeof(cmd), (uint8_t*)value, 4);
 
-  PN5180DEBUG(F("Register value=0x"));
-  PN5180DEBUG(formatHex(*value));
-  PN5180DEBUG("\n");
-
   return true;
 }
 
@@ -232,15 +228,6 @@ bool PN5180::readEEprom(uint8_t addr, uint8_t *buffer, int len) {
 
   uint8_t cmd[] = { PN5180_READ_EEPROM, addr, (uint8_t)len };
   transceiveCommand(cmd, sizeof(cmd), buffer, len);
-
-#ifdef DEBUG
-  PN5180DEBUG(F("EEPROM values: "));
-  for (int i=0; i<len; i++) {
-    PN5180DEBUG(formatHex(buffer[i]));
-    PN5180DEBUG(" ");
-  }
-  PN5180DEBUG("\n");
-#endif
 
   return true;
 }
@@ -331,15 +318,6 @@ uint8_t * PN5180::readData(int len, uint8_t *buffer /* = NULL */) {
 
   uint8_t cmd[] = { PN5180_READ_DATA, 0x00 };
   transceiveCommand(cmd, sizeof(cmd), buffer, len);
-
-#ifdef DEBUG
-  PN5180DEBUG(F("Data read: "));
-  for (int i=0; i<len; i++) {
-    PN5180DEBUG(formatHex(buffer[i]));
-    PN5180DEBUG(" ");
-  }
-  PN5180DEBUG("\n");
-#endif
 
   return readBuffer;
 }
@@ -491,12 +469,12 @@ bool PN5180::transceiveCommand(uint8_t *sendBuffer, size_t sendBufferLen, uint8_
     while(digitalRead(PN5180_BUSY) != LOW);  // wait until BUSY is low
 
 #ifdef DEBUG
-    PN5180DEBUG(F("Received: "));
+    PN5180DEBUG(F("Received:"));
     for (uint8_t i=0; i<recvBufferLen; i++) {
-      if (i > 0) PN5180DEBUG(" ");
+      PN5180DEBUG(" ");
       PN5180DEBUG(formatHex(recvBuffer[i]));
     }
-    PN5180DEBUG("'\n");
+    PN5180DEBUG("\n");
 #endif
   }
 
