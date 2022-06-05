@@ -100,9 +100,7 @@ bool PN5180::writeRegister(uint8_t reg, uint32_t value) {
   parameters passed follow the little endian approach (Least Significant Byte first).
    */
   uint8_t cmd[] = { PN5180_WRITE_REGISTER, reg, p[0], p[1], p[2], p[3] };
-  transceiveCommand(cmd, sizeof(cmd));
-
-  return true;
+  return transceiveCommand(cmd, sizeof(cmd));
 }
 
 /*
@@ -127,9 +125,7 @@ bool PN5180::writeRegisterWithOrMask(uint8_t reg, uint32_t mask) {
 #endif
 
   uint8_t cmd[] = { PN5180_WRITE_REGISTER_OR_MASK, reg, p[0], p[1], p[2], p[3] };
-  transceiveCommand(cmd, sizeof(cmd));
-
-  return true;
+  return transceiveCommand(cmd, sizeof(cmd));
 }
 
 /*
@@ -154,9 +150,7 @@ bool PN5180::writeRegisterWithAndMask(uint8_t reg, uint32_t mask) {
 #endif
 
   uint8_t cmd[] = { PN5180_WRITE_REGISTER_AND_MASK, reg, p[0], p[1], p[2], p[3] };
-  transceiveCommand(cmd, sizeof(cmd));
-
-  return true;
+  return transceiveCommand(cmd, sizeof(cmd));
 }
 
 /*
@@ -172,9 +166,7 @@ bool PN5180::readRegister(uint8_t reg, uint32_t *value) {
   PN5180DEBUG(F("...\n"));
 
   uint8_t cmd[] = { PN5180_READ_REGISTER, reg };
-  transceiveCommand(cmd, sizeof(cmd), (uint8_t*)value, 4);
-
-  return true;
+  return transceiveCommand(cmd, sizeof(cmd), (uint8_t*)value, 4);
 }
 
 /*
@@ -198,9 +190,7 @@ bool PN5180::writeEEPROM(uint8_t addr, uint8_t *data, int len) {
   for (int i=0; i<len; i++) {
     cmd[2+i] = data[i];
   }
-  transceiveCommand(cmd, len+2);
-
-  return true;
+  return transceiveCommand(cmd, len+2);
 }
 
 /*
@@ -227,9 +217,7 @@ bool PN5180::readEEprom(uint8_t addr, uint8_t *buffer, int len) {
   PN5180DEBUG(F("...\n"));
 
   uint8_t cmd[] = { PN5180_READ_EEPROM, addr, (uint8_t)len };
-  transceiveCommand(cmd, sizeof(cmd), buffer, len);
-
-  return true;
+  return transceiveCommand(cmd, sizeof(cmd), buffer, len);
 }
 
 /*
@@ -288,9 +276,7 @@ bool PN5180::sendData(uint8_t *data, int len, uint8_t validBits) {
     return false;
   }
 
-  transceiveCommand(cmd, len+2);
-
-  return true;
+  return transceiveCommand(cmd, len+2);
 }
 
 /*
@@ -348,9 +334,7 @@ bool PN5180::loadRFConfig(uint8_t txConf, uint8_t rxConf) {
   PN5180DEBUG("\n");
 
   uint8_t cmd[] = { PN5180_LOAD_RF_CONFIG, txConf, rxConf };
-  transceiveCommand(cmd, sizeof(cmd));
-
-  return true;
+  return transceiveCommand(cmd, sizeof(cmd));
 }
 
 /*
