@@ -65,6 +65,22 @@ enum PN5180TransceiveStat {
 #define TX_RFON_IRQ_STAT    (1<<9)  // RF Field ON in PCD IRQ
 #define RX_SOF_DET_IRQ_STAT (1<<14) // RF SOF Detection IRQ
 
+
+// PN5180 1-Byte Direct Commands
+// see 11.4.3.3 Host Interface Command List
+#define PN5180_CMD_WRITE_REGISTER           (0x00)
+#define PN5180_CMD_WRITE_REGISTER_OR_MASK   (0x01)
+#define PN5180_CMD_WRITE_REGISTER_AND_MASK  (0x02)
+#define PN5180_CMD_READ_REGISTER            (0x04)
+#define PN5180_CMD_WRITE_EEPROM             (0x06)
+#define PN5180_CMD_READ_EEPROM              (0x07)
+#define PN5180_CMD_SEND_DATA                (0x09)
+#define PN5180_CMD_READ_DATA                (0x0A)
+#define PN5180_CMD_SWITCH_MODE              (0x0B)
+#define PN5180_CMD_LOAD_RF_CONFIG           (0x11)
+#define PN5180_CMD_RF_ON                    (0x16)
+#define PN5180_CMD_RF_OFF                   (0x17)
+
 class PN5180 {
 private:
   uint8_t PN5180_NSS;   // active low
@@ -118,17 +134,12 @@ public:
    */
 public:
   void reset();
+  bool transceiveCommand(uint8_t *sendBuffer, size_t sendBufferLen, uint8_t *recvBuffer = 0, size_t recvBufferLen = 0);
 
   uint32_t getIRQStatus();
   bool clearIRQStatus(uint32_t irqMask);
 
   PN5180TransceiveStat getTransceiveState();
-
-  /*
-   * Private methods, called within an SPI transaction
-   */
-private:
-  bool transceiveCommand(uint8_t *sendBuffer, size_t sendBufferLen, uint8_t *recvBuffer = 0, size_t recvBufferLen = 0);
 
 };
 

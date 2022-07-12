@@ -22,20 +22,6 @@
 #include "PN5180.h"
 #include "Debug.h"
 
-// PN5180 1-Byte Direct Commands
-// see 11.4.3.3 Host Interface Command List
-#define PN5180_WRITE_REGISTER           (0x00)
-#define PN5180_WRITE_REGISTER_OR_MASK   (0x01)
-#define PN5180_WRITE_REGISTER_AND_MASK  (0x02)
-#define PN5180_READ_REGISTER            (0x04)
-#define PN5180_WRITE_EEPROM             (0x06)
-#define PN5180_READ_EEPROM              (0x07)
-#define PN5180_SEND_DATA                (0x09)
-#define PN5180_READ_DATA                (0x0A)
-#define PN5180_SWITCH_MODE              (0x0B)
-#define PN5180_LOAD_RF_CONFIG           (0x11)
-#define PN5180_RF_ON                    (0x16)
-#define PN5180_RF_OFF                   (0x17)
 
 uint8_t PN5180::readBuffer[508];
 
@@ -99,7 +85,7 @@ bool PN5180::writeRegister(uint8_t reg, uint32_t value) {
   For all 4 byte command parameter transfers (e.g. register values), the payload
   parameters passed follow the little endian approach (Least Significant Byte first).
    */
-  uint8_t cmd[] = { PN5180_WRITE_REGISTER, reg, p[0], p[1], p[2], p[3] };
+  uint8_t cmd[] = { PN5180_CMD_WRITE_REGISTER, reg, p[0], p[1], p[2], p[3] };
   return transceiveCommand(cmd, sizeof(cmd));
 }
 
@@ -124,7 +110,7 @@ bool PN5180::writeRegisterWithOrMask(uint8_t reg, uint32_t mask) {
   PN5180DEBUG("\n");
 #endif
 
-  uint8_t cmd[] = { PN5180_WRITE_REGISTER_OR_MASK, reg, p[0], p[1], p[2], p[3] };
+  uint8_t cmd[] = { PN5180_CMD_WRITE_REGISTER_OR_MASK, reg, p[0], p[1], p[2], p[3] };
   return transceiveCommand(cmd, sizeof(cmd));
 }
 
@@ -149,7 +135,7 @@ bool PN5180::writeRegisterWithAndMask(uint8_t reg, uint32_t mask) {
   PN5180DEBUG("\n");
 #endif
 
-  uint8_t cmd[] = { PN5180_WRITE_REGISTER_AND_MASK, reg, p[0], p[1], p[2], p[3] };
+  uint8_t cmd[] = { PN5180_CMD_WRITE_REGISTER_AND_MASK, reg, p[0], p[1], p[2], p[3] };
   return transceiveCommand(cmd, sizeof(cmd));
 }
 
@@ -165,7 +151,7 @@ bool PN5180::readRegister(uint8_t reg, uint32_t *value) {
   PN5180DEBUG(formatHex(reg));
   PN5180DEBUG(F("...\n"));
 
-  uint8_t cmd[] = { PN5180_READ_REGISTER, reg };
+  uint8_t cmd[] = { PN5180_CMD_READ_REGISTER, reg };
   return transceiveCommand(cmd, sizeof(cmd), (uint8_t*)value, 4);
 }
 
@@ -185,7 +171,7 @@ bool PN5180::writeEEPROM(uint8_t addr, uint8_t *data, int len) {
   PN5180DEBUG(F("...\n"));
 
   uint8_t cmd[len+2];
-  cmd[0] = PN5180_WRITE_EEPROM;
+  cmd[0] = PN5180_CMD_WRITE_EEPROM;
   cmd[1] = addr;
   for (int i=0; i<len; i++) {
     cmd[2+i] = data[i];
@@ -216,7 +202,7 @@ bool PN5180::readEEprom(uint8_t addr, uint8_t *buffer, int len) {
   PN5180DEBUG(len);
   PN5180DEBUG(F("...\n"));
 
-  uint8_t cmd[] = { PN5180_READ_EEPROM, addr, (uint8_t)len };
+  uint8_t cmd[] = { PN5180_CMD_READ_EEPROM, addr, (uint8_t)len };
   return transceiveCommand(cmd, sizeof(cmd), buffer, len);
 }
 
@@ -253,7 +239,7 @@ bool PN5180::sendData(uint8_t *data, int len, uint8_t validBits) {
 #endif
 
   uint8_t cmd[len+2];
-  cmd[0] = PN5180_SEND_DATA;
+  cmd[0] = PN5180_CMD_SEND_DATA;
   cmd[1] = validBits; // number of valid bits of last byte are transmitted (0 = all bits are transmitted)
   for (int i=0; i<len; i++) {
     cmd[2+i] = data[i];
@@ -302,7 +288,7 @@ uint8_t * PN5180::readData(int len, uint8_t *buffer /* = NULL */) {
   PN5180DEBUG(len);
   PN5180DEBUG(F(")...\n"));
 
-  uint8_t cmd[] = { PN5180_READ_DATA, 0x00 };
+  uint8_t cmd[] = { PN5180_CMD_READ_DATA, 0x00 };
   transceiveCommand(cmd, sizeof(cmd), buffer, len);
 
   return readBuffer;
@@ -333,7 +319,7 @@ bool PN5180::loadRFConfig(uint8_t txConf, uint8_t rxConf) {
   PN5180DEBUG(formatHex(rxConf));
   PN5180DEBUG("\n");
 
-  uint8_t cmd[] = { PN5180_LOAD_RF_CONFIG, txConf, rxConf };
+  uint8_t cmd[] = { PN5180_CMD_LOAD_RF_CONFIG, txConf, rxConf };
   return transceiveCommand(cmd, sizeof(cmd));
 }
 
@@ -345,7 +331,7 @@ bool PN5180::loadRFConfig(uint8_t txConf, uint8_t rxConf) {
 bool PN5180::setRF_on() {
   PN5180DEBUG(F("Set RF ON\n"));
 
-  uint8_t cmd[] = { PN5180_RF_ON, 0x00 };
+  uint8_t cmd[] = { PN5180_CMD_RF_ON, 0x00 };
   transceiveCommand(cmd, sizeof(cmd));
 
   while (!(getIRQStatus() & TX_RFON_IRQ_STAT)); // wait for RF field to set up
@@ -361,7 +347,7 @@ bool PN5180::setRF_on() {
 bool PN5180::setRF_off() {
   PN5180DEBUG(F("Set RF OFF\n"));
 
-  uint8_t cmd[] { PN5180_RF_OFF, 0x00 };
+  uint8_t cmd[] { PN5180_CMD_RF_OFF, 0x00 };
   transceiveCommand(cmd, sizeof(cmd));
 
   while (!(getIRQStatus() & TX_RFOFF_IRQ_STAT)); // wait for RF field to shut down
